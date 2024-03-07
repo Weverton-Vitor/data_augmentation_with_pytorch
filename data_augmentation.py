@@ -1,8 +1,10 @@
 import os
+import random
 import tifffile
 from PIL import Image
 import numpy as np
 from torchvision.transforms import functional as TF
+from torchvision.transforms import v2
 from skimage.transform import rotate
 
 
@@ -53,6 +55,34 @@ def apply_data_agumentation_to_train(train_path):
         with tifffile.TiffWriter(f"{train_path}/{image_name}_rotated.tif") as tif:
             tif.write(rotated_image, shape=image.shape, photometric="separated")
         mask_rotated.save(f"{train_path}/masks/{mask_name}_rotated_mask.png")
+
+        # elastic transform
+        elastic_transformer = v2.ElasticTransform(alpha=250.0)
+        image_elastic = elastic_transformer(image)
+        mask_elastic = elastic_transformer(mask)
+        # print(image_elastic.numpy().min(), image_elastic.numpy().max(), image_elastic.numpy().dtype)
+        with tifffile.TiffWriter(f"{train_path}/{image_name}_elastic.tif") as tif:
+            tif.write(image_elastic.numpy(), shape=image.shape, photometric="separated")
+        mask_elastic.save(f"{train_path}/masks/{mask_name}_elastic_mask.png")
+
+        # crop with random size
+
+        # Generate random values for top and left coordinates
+        crop_size = random.randint(1, image.shape[1]-100)
+        top = random.randint(0, image.shape[1] - crop_size)
+        left = random.randint(0, image.shape[1] - crop_size)
+
+        # The size of the cropped region is the same as crop_size
+        size = crop_size
+
+        image_crop_resized = TF.resized_crop(image, height=crop_size, width=crop_size, top=top, left=left, size=(512, 512))
+        mask_crop_resized = TF.resized_crop(mask, height=crop_size, width=crop_size, top=top, left=left, size=size)
+        # print(image_crop_resized.numpy().min(), image_crop_resized.numpy().max(), image_crop_resized.numpy().dtype)
+        with tifffile.TiffWriter(f"{train_path}/{image_name}_crop_resized.tif") as tif:
+            tif.write(image_crop_resized.numpy(), shape=image.shape, photometric="separated")
+        mask_crop_resized.save(f"{train_path}/masks/{mask_name}_crop_resized_mask.png")
+
+
 
         # print('----------------------------------------')
 
