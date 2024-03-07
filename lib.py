@@ -40,7 +40,7 @@ def get_data(url: str, file_name: str):
                 with py7zr.SevenZipFile(f'./{files_path}/{file_name}', mode='r') as z:
                     z.extractall('./')
 
-        print("Files extracted successfully.")
+        print("-> Files extracted successfully.")
 
     else:
         print(f"-> File {file_name} is already extracted, to extract again remove it and its subfolders manually")
@@ -63,7 +63,7 @@ def create_masks(data_path: str, labels_path: str, annotations_path):
             print(f"-> Create folder masks_temp in {f'{data_path}/masks_temp'}...")
             os.mkdir(f'{data_path}/masks_temp')
 
-            print("Create masks...")
+            print("-> Create masks...")
             for img in train_dataset:
                 mask = Image.fromarray(img['binary_mask'].numpy(), "L")
                 mask.save(f'{data_path}/masks_temp/{img["name"].split(".")[0]}_mask.png')
