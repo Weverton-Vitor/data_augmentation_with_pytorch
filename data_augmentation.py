@@ -45,7 +45,7 @@ def apply_data_agumentation_to_train(train_path):
         # # random rotation
         rotated_image = np.zeros_like(image)
         for channel in range(image.shape[0]):
-            rotated_image[channel, :, :] = rotate(image[channel, :, :], angle=25)
+            rotated_image[channel, :, :] = rotate(image[channel, :, :], angle=25, preserve_range=True)
 
         mask_rotated = TF.rotate(mask, angle=25.0)
         # print(rotated_image.numpy().min(), rotated_image.numpy().max(), rotated_image.numpy().dtype)
