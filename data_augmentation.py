@@ -24,14 +24,14 @@ def apply_data_agumentation_to_train(train_path):
         image_h_flip = TF.hflip(image)
         mask_h_flip = TF.hflip(mask)
         with tifffile.TiffWriter(f"{train_path}/{image_name}_h_flip.tif") as tif:
-            tif.write(image_h_flip.numpy())
+            tif.write(image_h_flip.numpy(), shape=image.shape)
         mask_h_flip.save(f"{train_path}/masks/{mask_name}_h_flip_mask.png")
 
         #random vertical flip
         image_v_flip = TF.vflip(image)
         mask_v_flip = TF.vflip(mask)
         with tifffile.TiffWriter(f"{train_path}/{image_name}_v_flip.tif") as tif:
-            tif.write(image_v_flip.numpy())
+            tif.write(image_v_flip.numpy(), shape=image.shape)
         mask_v_flip.save(f"{train_path}/masks/{mask_name}_v_flip_mask.png")
 
 
@@ -39,7 +39,7 @@ def apply_data_agumentation_to_train(train_path):
         image_rotated = TF.rotate(image, angle=10.0)
         mask_rotated = TF.rotate(mask, angle=10.0)
         with tifffile.TiffWriter(f"{train_path}/{image_name}_rotated.tif") as tif:
-            tif.write(image_rotated.numpy())
+            tif.write(image_rotated.numpy(), shape=image.shape)
         mask_rotated.save(f"{train_path}/masks/{mask_name}_rotated_mask.png")
 
 
