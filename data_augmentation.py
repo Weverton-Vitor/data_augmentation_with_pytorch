@@ -75,12 +75,12 @@ def apply_data_agumentation_to_train(train_path):
         # The size of the cropped region is the same as crop_size
         size = crop_size
 
-        image_crop_resized = TF.resized_crop(image, height=crop_size, width=crop_size, top=top, left=left, size=(512, 512))
-        mask_crop_resized = TF.resized_crop(mask, height=crop_size, width=crop_size, top=top, left=left, size=size)
-        # print(image_crop_resized.numpy().min(), image_crop_resized.numpy().max(), image_crop_resized.numpy().dtype)
-        with tifffile.TiffWriter(f"{train_path}/{image_name}_crop_resized.tif") as tif:
-            tif.write(image_crop_resized.numpy(), shape=image.shape, photometric="separated")
-        mask_crop_resized.save(f"{train_path}/masks/{mask_name}_crop_resized_mask.png")
+        # image_crop_resized = TF.resized_crop(image, height=crop_size, width=crop_size, top=top, left=left, size=(512, 512))
+        # mask_crop_resized = TF.resized_crop(mask, height=crop_size, width=crop_size, top=top, left=left, size=size)
+        # # print(image_crop_resized.numpy().min(), image_crop_resized.numpy().max(), image_crop_resized.numpy().dtype)
+        # with tifffile.TiffWriter(f"{train_path}/{image_name}_crop_resized.tif") as tif:
+        #     tif.write(image_crop_resized.numpy(), shape=image.shape, photometric="separated")
+        # mask_crop_resized.save(f"{train_path}/masks/{mask_name}_crop_resized_mask.png")
 
 
 
