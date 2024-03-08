@@ -153,7 +153,7 @@ def apply_data_agumentation_to_train_overlay(train_path):
                 mask = TF.resized_crop(mask, height=crop_size, width=crop_size, top=top, left=left, size=size)
                 # print(image.numpy().min(), image.numpy().max(), image.numpy().dtype)
 
-            with tifffile.TiffWriter(f"{train_path}/{image}_augmented_{i}.tif") as tif:
+            with tifffile.TiffWriter(f"{train_path}/{image_name}_augmented_{i}.tif") as tif:
                 tif.write(image.numpy(), shape=image.shape, photometric="separated")
             mask.save(f"{train_path}/masks/{mask_name}_augmented_{i}_mask.png")
 
