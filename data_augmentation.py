@@ -3,6 +3,7 @@ import random
 import tifffile
 from PIL import Image
 import numpy as np
+import torch
 from torchvision.transforms import functional as TF
 from torchvision.transforms import v2
 from skimage.transform import rotate
