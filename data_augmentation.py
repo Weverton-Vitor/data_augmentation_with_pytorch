@@ -58,13 +58,13 @@ def apply_data_agumentation_to_train(train_path):
         mask_rotated.save(f"{train_path}/masks/{mask_name}_rotated_mask.png")
 
         # elastic transform
-        elastic_transformer = v2.ElasticTransform(alpha=250.0)
-        image_elastic = elastic_transformer(image)
-        mask_elastic = elastic_transformer(mask)
-        # print(image_elastic.numpy().min(), image_elastic.numpy().max(), image_elastic.numpy().dtype)
-        with tifffile.TiffWriter(f"{train_path}/{image_name}_elastic.tif") as tif:
-            tif.write(image_elastic.numpy(), shape=image.shape, photometric="separated")
-        mask_elastic.save(f"{train_path}/masks/{mask_name}_elastic_mask.png")
+        # elastic_transformer = v2.ElasticTransform(alpha=250.0)
+        # image_elastic = elastic_transformer(image)
+        # mask_elastic = elastic_transformer(mask)
+        # # print(image_elastic.numpy().min(), image_elastic.numpy().max(), image_elastic.numpy().dtype)
+        # with tifffile.TiffWriter(f"{train_path}/{image_name}_elastic.tif") as tif:
+        #     tif.write(image_elastic.numpy(), shape=image.shape, photometric="separated")
+        # mask_elastic.save(f"{train_path}/masks/{mask_name}_elastic_mask.png")
 
         # crop with random size
 
@@ -76,12 +76,12 @@ def apply_data_agumentation_to_train(train_path):
         # The size of the cropped region is the same as crop_size
         size = crop_size
 
-        # image_crop_resized = TF.resized_crop(image, height=crop_size, width=crop_size, top=top, left=left, size=(512, 512))
-        # mask_crop_resized = TF.resized_crop(mask, height=crop_size, width=crop_size, top=top, left=left, size=size)
-        # # print(image_crop_resized.numpy().min(), image_crop_resized.numpy().max(), image_crop_resized.numpy().dtype)
-        # with tifffile.TiffWriter(f"{train_path}/{image_name}_crop_resized.tif") as tif:
-        #     tif.write(image_crop_resized.numpy(), shape=image.shape, photometric="separated")
-        # mask_crop_resized.save(f"{train_path}/masks/{mask_name}_crop_resized_mask.png")
+        image_crop_resized = TF.resized_crop(image, height=crop_size, width=crop_size, top=top, left=left, size=(512, 512))
+        mask_crop_resized = TF.resized_crop(mask, height=crop_size, width=crop_size, top=top, left=left, size=(512, 512))
+        # print(image_crop_resized.numpy().min(), image_crop_resized.numpy().max(), image_crop_resized.numpy().dtype)
+        with tifffile.TiffWriter(f"{train_path}/{image_name}_crop_resized.tif") as tif:
+            tif.write(image_crop_resized.numpy(), shape=image.shape, photometric="separated")
+        mask_crop_resized.save(f"{train_path}/masks/{mask_name}_crop_resized_mask.png")
 
 
 
