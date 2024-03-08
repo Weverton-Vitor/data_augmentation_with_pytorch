@@ -1,4 +1,4 @@
-from data_augmentation import apply_data_agumentation_to_train
+from data_augmentation import apply_data_agumentation_to_train, apply_data_agumentation_to_train_overlay
 from lib import get_data, create_masks, split_data
 
 ULR_FILE = 'https://www.dropbox.com/s/8huwne6of80v5l3/Pansharpened.7z?dl=1'
@@ -19,4 +19,4 @@ if __name__ == '__main__':
                labels_path=LABELS_PATH,
                test_ratio= TEST_RATIO)
     
-    apply_data_agumentation_to_train(train_path=TRAIN_PATH)
+    apply_data_agumentation_to_train_overlay(train_path=TRAIN_PATH)

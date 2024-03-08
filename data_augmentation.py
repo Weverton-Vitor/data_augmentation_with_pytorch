@@ -87,3 +87,73 @@ def apply_data_agumentation_to_train(train_path):
         # print('----------------------------------------')
 
     print("-> Finish data augmentation")
+
+
+def apply_data_agumentation_to_train_overlay(train_path):
+    images = [f'{train_path}/{img}' for img in os.listdir(train_path) if os.path.isfile(f'{train_path}/{img}')]
+    masks = [f'{train_path}/masks/{mask}' for mask in os.listdir(train_path+'/masks') if os.path.isfile(f'{train_path}/masks/{mask}')]
+
+    print("-> Applying vertical flip, horizontal flip and rotate separately")
+    for img_path in images:
+        image = tifffile.imread(img_path)
+        image_name = img_path.split('/')[-1].split('.')[0]
+
+        mask = list(filter(lambda x: image_name in x, masks))[0]
+        mask_name = mask.split('.')[1].split('/')[-1].replace('_mask', '')
+        mask = Image.open(mask)
+
+        # print('----------------------------------------')
+        # print(image.min(), image.max(), image.dtype)
+        image = TF.to_tensor(image.astype(np.int64))
+        # print(image.numpy().min(), image.numpy().max(), image.dtype)
+        
+        for i in range(3):
+            if random.random() > 0.5:
+                #random horizontal flip
+                image = TF.hflip(image)
+                mask = TF.hflip(mask)
+                # print(image.numpy().min(), image.numpy().max(), image.numpy().dtype)
+
+            if random.random() > 0.5:
+                #random vertical flip
+                image = TF.vflip(image)
+                mask = TF.vflip(mask)
+                # print(image.numpy().min(), image.numpy().max(), image.numpy().dtype)
+
+            if random.random() > 0.5:
+                # # random rotation
+                rotated_image = np.zeros_like(image)
+                for channel in range(image.shape[0]):
+                    rotated_image[channel, :, :] = rotate(image.numpy()[channel, :, :], angle=25, preserve_range=True)
+
+                image = torch.from_numpy(rotated_image)
+                mask = TF.rotate(mask, angle=25.0)
+                # print(rotated_image.numpy().min(), rotated_image.numpy().max(), rotated_image.numpy().dtype)
+
+            if random.random() > 0.5:
+                # elastic transform
+                elastic_transformer = v2.ElasticTransform(alpha=250.0)
+                image = elastic_transformer(image)
+                mask = elastic_transformer(mask)
+                # print(image.numpy().min(), image.numpy().max(), image.numpy().dtype)
+
+            if random.random() > 0.5:
+
+                # crop with random size
+                # Generate random values for top and left coordinates
+                crop_size = random.randint(1, image.shape[1]-100)
+                top = random.randint(0, image.shape[1] - crop_size)
+                left = random.randint(0, image.shape[1] - crop_size)
+
+                # The size of the cropped region is the same as crop_size
+                size = crop_size
+
+                image = TF.resized_crop(image, height=crop_size, width=crop_size, top=top, left=left, size=(512, 512))
+                mask = TF.resized_crop(mask, height=crop_size, width=crop_size, top=top, left=left, size=size)
+                # print(image.numpy().min(), image.numpy().max(), image.numpy().dtype)
+
+            with tifffile.TiffWriter(f"{train_path}/{image}_augmented_{i}.tif") as tif:
+                tif.write(image.numpy(), shape=image.shape, photometric="separated")
+            mask.save(f"{train_path}/masks/{mask_name}_augmented_{i}_mask.png")
+
+    print("-> Finish data augmentation")
