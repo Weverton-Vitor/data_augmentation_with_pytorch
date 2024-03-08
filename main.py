@@ -19,4 +19,4 @@ if __name__ == '__main__':
                labels_path=LABELS_PATH,
                test_ratio= TEST_RATIO)
     
-    apply_data_agumentation_to_train_overlay(train_path=TRAIN_PATH)
+    apply_data_agumentation_to_train(train_path=TRAIN_PATH)
