@@ -7,6 +7,8 @@ from CustomLandfillDataset import CustomLandfillDataset
 from sklearn.model_selection import train_test_split
 from PIL import Image
 import pandas as pd
+import rasterio
+
 
 
 def get_data(url: str, file_name: str):
@@ -46,24 +48,43 @@ def get_data(url: str, file_name: str):
         print(f"-> File {file_name} is already extracted, to extract again remove it and its subfolders manually")
 
 
+def get_only_8_channels(data_path: str, labels_path: str):
+    df = pd.read_csv(labels_path)
+    # print(df)
+    images = df['Image Index']
+    delete = []
+    for image in images:
+        with rasterio.open(f'{data_path}/{image}') as img_raster:
+            channels = img_raster.read().shape[0]
+            if channels == 4:
+                delete.append(f'{data_path}/{image}')
+                df = df.drop(df[df['Image Index'] == image].index, axis=0)
+
+    # print(df)
+    df.reset_index(inplace=True)
+    df['Idx'] = pd.Series(list(range(len(df['Idx']))))
+    df.to_csv(labels_path, sep=',', index=False, encoding='utf-8')
+    
+    return delete
+
 def create_masks(data_path: str, labels_path: str, annotations_path):
     files = [f for f in os.listdir(data_path) if os.path.isfile(f'{data_path}/{f}')]
     if not files:
         print('-> Data path empty or already preprocessed')
     else:
         dataFrame = pd.read_csv(labels_path, usecols=["Idx", "Image Index", "IsLandfill"])
+        # print(dataFrame.values.tolist())
         train_dataset = CustomLandfillDataset(data=dataFrame.values.tolist(),
                                             dsType = 'train',
                                             transforms=None,
                                             labelCSV=labels_path,
                                             imgpath=data_path,
                                             jsonpath=annotations_path)
-
         if 'masks_temp' not in os.listdir(data_path):
             print(f"-> Create folder masks_temp in {f'{data_path}/masks_temp'}...")
             os.mkdir(f'{data_path}/masks_temp')
 
-            print("-> Create masks...")
+            print(f"-> Create masks for {len(train_dataset)} images...")
             for img in train_dataset:
                 mask = Image.fromarray(img['binary_mask'].numpy(), "L")
                 mask.save(f'{data_path}/masks_temp/{img["name"].split(".")[0]}_mask.png')
@@ -74,13 +95,14 @@ def create_masks(data_path: str, labels_path: str, annotations_path):
             print(f"-> 'masks_temp' folder already exist inside {data_path} folder")
 
 
-def split_data(data_path: str, labels_path: str, test_ratio: float,) ->  None:
+def split_data(data_path: str, labels_path: str, val_ratio: float,) ->  None:
     df = pd.read_csv(labels_path, usecols=["Idx", "Image Index", "IsLandfill"])
+    # print(df)
     label = pd.read_csv(labels_path, usecols=["IsLandfill"])
 
-    train_df, test_df, train_lab, test_lab = train_test_split(df,
+    train_df, test_df, train_labels, test_labels = train_test_split(df,
                                                                 label,
-                                                                test_size = test_ratio,
+                                                                test_size = val_ratio,
                                                                 shuffle=True, 
                                                                 stratify=label)
     
@@ -99,8 +121,8 @@ def split_data(data_path: str, labels_path: str, test_ratio: float,) ->  None:
     # Create folder train and move the selected data
     def split(path: str, df: pd.DataFrame) ->  None:
         if path not in os.listdir(data_path):
-            print(f"-> Create folder train in {f'{data_path}/train'}...")
-            print(f"-> Create folder masks in {f'{data_path}/train/masks'}...")
+            print(f"-> Create folder {path} in {f'{data_path}/{path}'}...")
+            print(f"-> Create folder masks in {f'{data_path}/{path}/masks'}...")
 
             os.mkdir(f'{data_path}/{path}')
             os.mkdir(f'{data_path}/{path}/masks')
@@ -119,3 +141,9 @@ def split_data(data_path: str, labels_path: str, test_ratio: float,) ->  None:
     print(f"-> Deleting {data_path}/masks_temp/'")
     if 'masks_temp' in os.listdir(data_path):
         shutil.rmtree(f'{data_path}/masks_temp/')
+
+def delete_images(images_path):
+    for path in images_path:
+        if os.path.isfile(path):
+            os.remove(path)
+    

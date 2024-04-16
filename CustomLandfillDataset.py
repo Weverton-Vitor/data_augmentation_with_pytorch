@@ -123,6 +123,7 @@ class CustomLandfillDataset(torch.utils.data.Dataset):
       fp_mask = np.zeros((patch_height, patch_width), dtype=np.uint8)
 
     rgb_image = raster_img.transpose(1,2,0)
+    # print(os.path.join(self.imgpath, img_name), raster_channels)
     if(raster_channels == 8):
       """
       Worldview-3 spectral bands
